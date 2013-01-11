@@ -1,0 +1,105 @@
+#!/bin/bash
+# PAWS Devices Management Daemon wrapper
+#
+# author: arjuna.sathiaseelan@cl.cam.ac.uk
+
+# Load configuration file
+. ~/etc/bdm.conf
+
+# Load local db config file (contains passwords, etc.)
+. ~/etc/bdm_db.conf
+
+export VAR_DIR
+
+# Aliases
+
+# Help screen
+# $1 = command
+function help()
+{
+	cat <<-end
+	Syntax:
+
+	    $(basename $0) [options] <start|stop|restart|info>
+
+	Options:
+
+	    -h               Print help screen
+	end
+	exit
+}
+
+## Main ##
+
+# Check directories
+mkdir -p $VAR_DIR/log/devices/
+
+# Make DB
+db_exists=`psql -l | grep -c $BDM_PG_MGMT_DBNAME`
+if [ $db_exists -eq 0 ]; then
+	echo "Database $BDM_PG_MGMT_DBNAME does not exist. Please create it."
+	exit 1
+fi
+num_tables=`psql -A -q -t -c "\dt" $BDM_PG_MGMT_DBNAME | wc -l`
+if [ $num_tables -eq 0 ]; then
+	cd $DB_SRC
+	make create DB=$BDM_PG_MGMT_DBNAME
+	cd -
+fi
+
+# Parse command-line
+while getopts 'h' flag; do
+	case $flag in
+	h)
+		help
+	;;
+	*)
+		echo "Unknown option: $flag $OPTARG"
+		help
+	;;
+	esac
+done
+shift $(( OPTIND - 1 ))
+
+pid=$(pgrep -f bdmd.py)
+case $1 in
+start)
+	if [ ! -z "$pid" ]; then
+		echo "bdmd already running"
+	else
+		echo -n "Starting bdmd..."
+			if [ ! -e "$BDMDPY_ROOT/virt-python/bin/activate" ]; then
+			    $BDMDPY_ROOT/mkvirtualenv.sh
+			fi
+			source $BDMDPY_ROOT/virt-python/bin/activate
+			$BDMDPY_ROOT/bdmd.py $PROBE_PORTS >> $BDMD_LOG_FILE 2> /tmp/bdmd.debug &
+		sleep 1
+		[ "$(pgrep -f bdmd.py)" ] && echo "done" || echo "error"
+	fi
+;;
+stop)
+	if [ ! -z "$pid" ]; then
+		echo -n "Stopping bdmd..."
+		kill $pid
+		sleep 1
+		[ "$(pgrep -f bdmd.py)" ] && echo "error" || echo "done"
+	else
+		echo "bdmd not running"
+	fi
+;;
+restart)
+	$0 stop
+	$0 start
+;;
+info)
+	if [ ! -z "$pid" ]; then
+		echo "bdmd is running (pid "$pid")"
+	else
+		echo "bdmd not running"
+	fi
+;;
+*)
+	help
+;;
+esac
+
