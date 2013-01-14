@@ -1,6 +1,6 @@
 #!/bin/bash
 # PAWS Devices Management script
-#
+# Original source from BISMARK - modified for PAWS
 # author: arjuna.sathiaseelan@cl.cam.ac.uk
 
 # Load configuration file
