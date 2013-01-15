@@ -47,8 +47,6 @@ function help()
 	
 	    list                                 List available devices and tunnels
 
-	    mslist                               List configured measurement servers
-	
 	    readmsg                              Read incoming messages
 
 	    tunnel   <dev_id> <on> [ip:port]     Open a tunnel to <dev_id> using SSH port forwarding (default: 127.0.0.1:22)
@@ -539,9 +537,9 @@ function upgrade()
 	echo "Upgrading $1"
 
 	# Create last release packages
-	for p in $(find ~/bismark/device -maxdepth 1 -name "*_*" -printf "%f\n"); do
+	for p in $(find ~/paws/device -maxdepth 1 -name "*_*" -printf "%f\n"); do
 		(
-		 cd ~/bismark/device/$p
+		 cd ~/paws/device/$p
 		 [ -e ./make_package ] && { ./make_package update && ./make_package install ; }
 		)
 	done
@@ -655,54 +653,6 @@ function list()
 	done
 }
 
-# List measurement servers info
-function mslist()
-{
-	# Dump measure servers table with capabilities
-	echo -e "${BLUE}\nMeasurement Servers:"
-	echo -ne "${WHITE}"
-	printf "%-15s %-8s %-11s %s\n" IP ZONE FREE_TS SERVICES
-	IFS=$'\n' 
-	for ms in $(query 'SELECT ip,zone,free_ts FROM targets ORDER BY ip;'); do
-		IFS=$'|' read ip zone ts <<< "$ms"
-
-		#off_time=$(( $(date +%s) - $ts ))
-		#[ "$user" ] || user=root
-		#if [ $off_time -lt 300 ]; then
-			echo -ne $GREEN
-		#elif [ $off_time -lt 600 ]; then
-		#	echo -ne $YELLOW
-		#	[ $2 ] && sendmail $id "MServer $id went offline"
-		#else
-		#	echo -ne $RED
-		#fi
-
-		printf "%-15s %-8s %-11s " $ip $zone $ts
-		
-		for cap in $(query 'SELECT service,info FROM capabilities WHERE target_ip="'$ip'" ORDER BY service;'); do
-			IFS=$'|' read serv info <<< "$cap"
-
-			printf "${BLUE}(${MAGENTA}%s${BLUE},${MAGENTA}%s${BLUE})" $serv $info
-		done
-		printf "\n"
-	done
-
-	# Dump measure servers table with capabilities
-	echo -e "${BLUE}\nMeasure Service Types:"
-	echo -ne "${WHITE}"
-	printf "%-10s %s\n" TYPE MUTEX
-	echo -ne $MAGENTA
-
-	IFS=$'\n' 
-	for ms in $(query 'SELECT mtype,mexclusive FROM mtypes ORDER BY type;'); do
-		IFS=$'|' read tp mutex <<< "$ms"
-
-		[ $mutex -eq 0 ] && mutex=no || mutex=yes
-		printf "%-10s %s\n" $tp $mutex
-	done
-
-	echo -ne $NO_COLOR
-}
 
 # Copy file to device /tmp directory
 # $1 = dev_id
