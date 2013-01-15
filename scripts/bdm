@@ -35,7 +35,7 @@ function help()
 	
 	Commands:
 	
-	    config   <dev_id> [[opt=value] ...]  Show or Change <dev_id> configuration options (ALL applies) wifi-enable/wifi-disable/throttle/remove-throttle
+	    config   <dev_id> [wifi-enable/wifi-disable/throttle/remove-throttle]  Show or Change <dev_id> configuration options (ALL applies)
 
 	    console  <dev_id>                    Open a console on <dev_id> over the SSH tunnel
 	
