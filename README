@@ -51,9 +51,9 @@ $ ./bdm_db.sh create_db
 $ ./bdm_db.sh create_tables
 
 
-(6) Python stuff
+(6) Python Installation
 
-Note: bdmd/mkvirtual.sh is deprecated - so lets do a manual installation
+Note: bdmd/mkvirtualenv.sh is deprecated - so lets do a manual installation
 
 $ cd ../bdmd
 $ sudo apt-get install python-pip python-dev build-essential
