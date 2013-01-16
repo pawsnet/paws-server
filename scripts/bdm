@@ -694,7 +694,7 @@ function read_msg()
 			' ~/var/log/devices/$from.log
 			echo "------------------------"
 
-			query "DELETE FROM messages WHERE id='$mid';"
+			query "DELETE FROM messages WHERE msgfrom='$1';"
 		done
 	else
 		echo "No incoming messages"
