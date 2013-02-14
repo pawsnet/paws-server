@@ -1,3 +1,33 @@
+## How to use PAWS Router Management Server
+
+To get set-up and ready to remotely manage the PAWS routers: Get access to the Management Server as PAWS user and move to the correct directory to run the management scripts
+
+	$ ssh -i <privatekey> <username>@server01.horizon.emnet.co.uk
+	$ sudo su paws
+	$ cd /home/paws/paws-server/scripts/
+
+Now you can do the following things:
+
+Get a list of currently connected PAWS routers
+
+	$ ./bdm list 
+
+SSH into a particular PAWS router 
+
+	$ ./bdm console <device-ID>
+
+Enable/disable Wifi on a particular PAWS router
+
+	$ ./bdm config   <dev_id> [wifi-enable/wifi-disable]
+
+Enable/disable throttling on a particular PAWS router
+
+	$ config   <dev_id> [throttle/remove-throttle]
+
+
+
+## PAWS Router Management Server Install Instruction (for Ubuntu NOT CentOS)
+
 Acknowledgements: Original source from https://github.com/projectbismark 
 Modified for PAWS by Arjuna Sathiaseelan: arjuna.sathiaseelan@cl.cam.ac.uk
 
