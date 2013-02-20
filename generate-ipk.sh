@@ -8,7 +8,7 @@ pawsrepo=/home/paws/paws-server
 cd $sdk
 oldversion="0.8"
 version="0.9"
-sed -i 's/PKG_VERSION:=$oldversion/PKG_VERSION:=$version/g' /package/paws/Makefile
+sed -i 's/PKG_VERSION:=$oldversion/PKG_VERSION:=$version/g' package/paws/Makefile
 make V=99
 echo "PAWS ipk $version has been successfully generated"
 
