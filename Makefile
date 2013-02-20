@@ -63,6 +63,8 @@ define Package/paws/postinst
 	if [ -z "$${IPKG_INSTROOT}" ]; then
     		$${IPKG_INSTROOT}/usr/bin/paws-bootstrap
 	fi
+	/etc/init.d/firewall restart
+	/etc/init.d/paws enable
 endef
 
 $(eval $(call BuildPackage,paws))
