@@ -471,7 +471,6 @@ function console()
 	[ $2 ] && { p=$* ; cmd=${p#* } ; }
 	if [ "$cmd" == bg ]; then
 		ssh $SSH_USER@127.0.0.1 -p $FWD_PORT $SSH_OPTIONS 2>/dev/null &
-echo "Arjuna tunnel starts right here.."
 	else
 		ssh $SSH_USER@127.0.0.1 -p $FWD_PORT $SSH_OPTIONS $cmd 2>/dev/null
 		[ $new ] && stop_tunnel $1
@@ -535,14 +534,6 @@ function start_gtunnel()
 function upgrade()
 {
 	echo "Upgrading $1"
-
-	# Create last release packages
-	for p in $(find ~/paws/device -maxdepth 1 -name "*_*" -printf "%f\n"); do
-		(
-		 cd ~/paws/device/$p
-		 [ -e ./make_package ] && { ./make_package update && ./make_package install ; }
-		)
-	done
 
 	# Start upgrade script
 	echo "Executing upgrade:"
