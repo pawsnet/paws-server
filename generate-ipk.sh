@@ -7,8 +7,8 @@ pawsrepo=/home/paws/paws-server
 
 cd $sdk
 
-oldversion=0.13
-version=0.14
+oldversion=0.15
+version=0.16
 
 sed -i s/PKG_VERSION:=$oldversion/PKG_VERSION:=$version/g package/paws/Makefile
 make V=99
