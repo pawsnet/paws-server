@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=paws
-PKG_VERSION:=0.14
+PKG_VERSION:=0.15
 PKG_RELEASE:=1
 
 
@@ -40,7 +40,7 @@ endef
 
 define Package/paws/install
 # moving PAWS files into correct location
-	$(INSTALL_DIR) $(1)/etc $(1)/etc/dropbear $(1)/usr $(1)/www
+	$(INSTALL_DIR) $(1)/etc $(1)/usr $(1)/www
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/etc/*  $(1)/etc/
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/usr/*  $(1)/usr/
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/www/*  $(1)/www/
@@ -61,6 +61,7 @@ define Package/paws/postinst
 	if [ -z "$${IPKG_INSTROOT}" ]; then
     		$${IPKG_INSTROOT}/usr/bin/paws-bootstrap
 	fi
+        iptables --flush
 	/etc/init.d/firewall restart
 	/etc/init.d/paws enable
 endef
