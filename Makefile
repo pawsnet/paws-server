@@ -64,6 +64,7 @@ define Package/paws/postinst
         iptables --flush
 	/etc/init.d/firewall restart
 	/etc/init.d/paws enable
+	reboot
 endef
 
 $(eval $(call BuildPackage,paws))
