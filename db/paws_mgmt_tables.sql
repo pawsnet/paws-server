@@ -1,4 +1,3 @@
-
 CREATE SCHEMA public;
 
 CREATE DOMAIN fqdn_t        AS varchar(255);    -- fully-qualified domain name
