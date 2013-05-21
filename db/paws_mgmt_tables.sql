@@ -82,11 +82,3 @@ CREATE TABLE services (
 CREATE TABLE blacklist (
     device_id       id_t            PRIMARY KEY
 );
-
-CREATE TABLE device_info (
-    device_id id_t NOT NULL REFERENCES devices (id),
-    name text,
-    adv_uplink NUMERIC,
-    adv_downlink NUMERIC,
-    PRIMARY KEY (device_id)
-);
