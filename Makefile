@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=paws
-PKG_VERSION:=0.24
+PKG_VERSION:=0.25
 PKG_RELEASE:=1
 
 
@@ -44,7 +44,6 @@ define Package/paws/install
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/etc/*  $(1)/etc/
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/usr/*  $(1)/usr/
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/www/*  $(1)/www/
-	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/etc/functions.sh $(1)/lib/function.sh
 #we need to however ensure we also dont overwrite bismark's files for e.g.
 #we need to ensure etc/dropbear doesnt have authorized keys for bismark server
 #also etc/crontab/root - we need to check          
@@ -63,8 +62,6 @@ define Package/paws/postinst
     		$${IPKG_INSTROOT}/usr/bin/paws-bootstrap
 	fi
         iptables --flush
-	opkg install http://downloads.openwrt.org/snapshots/trunk/ar71xx/packages//wshaper_0.2-2_all.ipk
-	/etc/init.d/wshaper enable
 	/etc/init.d/firewall restart
 	/etc/init.d/paws enable
 	reboot
