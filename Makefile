@@ -44,7 +44,6 @@ define Package/paws/install
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/etc/*  $(1)/etc/
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/usr/*  $(1)/usr/
 	$(CP) -p $(PKG_BUILD_DIR)/paws/paws-firmware/www/*  $(1)/www/
-	$(CP) -p $(1)/etc/functions.sh $(1)/lib/function.sh
 #we need to however ensure we also dont overwrite bismark's files for e.g.
 #we need to ensure etc/dropbear doesnt have authorized keys for bismark server
 #also etc/crontab/root - we need to check          
