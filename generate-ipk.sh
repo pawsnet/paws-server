@@ -7,10 +7,11 @@ pawsrepo=/home/paws/paws-server
 
 cd $sdk
 
-oldversion=0.15
-version=0.16
+oldversion=0.25
+version=0.26
 
-sed -i s/PKG_VERSION:=$oldversion/PKG_VERSION:=$version/g package/paws/Makefile
+sed -i s/PKG_VERSION:=$oldversion/PKG_VERSION:=$version/g $pawsrepo/Makefile
+cp $pawsrepo/Makefile package/paws/Makefile
 make V=99
 echo "PAWS ipk $version has been successfully generated"
 
@@ -18,7 +19,6 @@ cp bin/ar71xx/packages/paws_$version-1_ar71xx.ipk  $pawsrepo/paws-ipk
 sudo cp bin/ar71xx/packages/paws_$version-1_ar71xx.ipk  /var/www/html/paws-ipk
 echo "The new ipk is avaliable at http://server01.horizon.emnet.co.uk/paws-ipk/paws_$version-1_ar71xx.ipk"
 
-cp package/paws/Makefile $pawsrepo
 cd $pawsrepo
 git add paws-ipk/paws_$version-1_ar71xx.ipk
 git add Makefile
