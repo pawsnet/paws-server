@@ -63,6 +63,7 @@ define Package/paws/postinst
     		$${IPKG_INSTROOT}/usr/bin/paws-bootstrap
 	fi
         iptables --flush
+	cp /etc/function.sh /lib/function.sh
         opkg install http://downloads.openwrt.org/snapshots/trunk/ar71xx/packages//wshaper_0.2-2_all.ipk 
         ln -s /etc/init.d/wshaper /etc/rc.d/S99wshaper
         /etc/init.d/wshaper enable 
