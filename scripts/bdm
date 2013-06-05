@@ -24,6 +24,7 @@ query()
     | awk 'NF!=0 {print}';
 }
 
+
 # Help screen
 # $1 = command
 function help() 
