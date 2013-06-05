@@ -35,7 +35,7 @@ function help()
 	
 	Commands:
 	
-	    config   <dev_id> [wifi-enable/wifi-disable/throttle/remove-throttle]  Show or Change <dev_id> configuration options (ALL applies)
+	    config   <dev_id> [wifi-enable/wifi-disable/throttle-up=x/throttle-dw=x//remove-throttle]  Show or Change <dev_id> configuration options (ALL and fiber/adsl  applies)
 
 	    console  <dev_id>                    Open a console on <dev_id> over the SSH tunnel
 	
@@ -52,7 +52,7 @@ function help()
 	    tunnel   <dev_id> <on> [ip:port]     Open a tunnel to <dev_id> using SSH port forwarding (default: 127.0.0.1:22)
 	             <dev_id> <off> [port]       Close a tunnel to <dev_id> (default: oldest) (ALL applies)
 	
-	    upgrade  <dev_id> [URL]              Upgrade software on <dev_id> (ALL applies)
+	    upgrade  <dev_id> [URL]              Upgrade software on <dev_id> (ALL and fiber/adsl applies)
 
 
 	    For internal use only:
@@ -64,7 +64,9 @@ function help()
 	    settunnel <dev_id> <port>       Set the tunnel entry for <dev_id>
 
 	    setuser   <dev_id> <username>   Set the SSH username for <dev_id>
-	
+           
+	    setnetwork <dev_id> <type> 	    Set the network type for <dev_id>: fiber, adsl
+		
 	    clearmsg  [id]                  Delete pending messages
 
 	    cleardev  [id]                  Delete device from list
@@ -171,16 +173,63 @@ function parse()
 	;;
 	upgrade)
 		[ $2 ] || { echo -e "Missing parameter: <dev_id>\n"; help upgrade; }
-		device_id=$2
-		check_device_id 'device_id' || help upgrade;
-		upgrade $device_id $3
+
+		if [ $2 == ALL ]; then
+                        for dev in $(query "SELECT id FROM devices;"); do
+                        echo $dev
+                        device_id=$dev
+                        check_device_id 'device_id' || help config;
+                        upgrade $device_id $3
+                        done
+                elif [ $2 == fiber ]; then
+                        for dev in $(query "SELECT id FROM devices WHERE network='fiber';"); do
+                        echo $dev
+                        device_id=$dev
+                        check_device_id 'device_id' || help config;
+                        upgrade $device_id $3
+                        done
+                 elif [ $2 == adsl ]; then
+                        for dev in $(query "SELECT id FROM devices WHERE network='adsl';"); do
+                        echo $dev
+                        device_id=$dev
+                        check_device_id 'device_id' || help config;
+                        upgrade $device_id $3
+                        done
+                else
+			device_id=$2
+			check_device_id 'device_id' || help upgrade;
+			upgrade $device_id $3
+		fi
 	;;
 	config)
 		[ $2 ] || { echo -e "Missing parameter: <dev_id>\n"; help config; }
 		[ $2 == ALL ] && echo $* | grep -q DEVICE_ID && { echo -e "ALL not allowed for DEVICE_ID\n"; help config; }
-		device_id=$2
-		check_device_id 'device_id' || help config;
-		config $device_id $3
+		if [ $2 == ALL ]; then
+               		for dev in $(query "SELECT id FROM devices;"); do  
+		        echo $dev
+			device_id=$dev
+			check_device_id 'device_id' || help config; 
+			config $device_id $3
+			done
+		elif [ $2 == fiber ]; then
+			for dev in $(query "SELECT id FROM devices WHERE network='fiber';"); do
+                        echo $dev
+                        device_id=$dev
+                        check_device_id 'device_id' || help config;
+                        config $device_id $3
+                        done
+		 elif [ $2 == adsl ]; then
+                        for dev in $(query "SELECT id FROM devices WHERE network='adsl';"); do
+                        echo $dev
+                        device_id=$dev
+                        check_device_id 'device_id' || help config;
+                        config $device_id $3
+                        done
+		else
+			device_id=$2
+			check_device_id 'device_id' || help config;
+			config $device_id $3
+		fi
 	;;
 	setuser)
 		[ $2 ] || { echo -e "Missing parameter: <dev_id>\n"; help setuser; }
@@ -189,6 +238,13 @@ function parse()
 		check_device_id 'device_id' || help setuser;
 		setuser $device_id $3
 	;;
+	setnetwork)
+                [ $2 ] || { echo -e "Missing parameter: <dev_id>\n"; help setuser; }
+                [ $3 ] || { echo -e "Missing parameter: <network>\n"; help setuser; }
+                device_id=$2
+                check_device_id 'device_id' || help setnetwork;
+                setnetwork $device_id $3
+        ;;
 	settunnel)
 		[ $2 ] || { echo -e "Missing parameter: <dev_id>\n"; help settunnel; }
 		[ $3 ] || { echo -e "Missing parameter: <port>\n"; help settunnel; }
@@ -565,9 +621,10 @@ function config()
 {
 	id=$1
 	shift
-	
+        #echo $*	
 	params=$(echo $* | tr ' ' '&')
 	echo -n "Sending config request to $id"
+	#echo $params
 	send_msg $id config $params || { echo -e "\nDevice $id not found"; return 1; }
 	
 	# Wait reply
@@ -591,11 +648,11 @@ function list()
 	# Dump devices table
 	echo -e "${BLUE}\nDevices:${NO_COLOR}"
 	echo -ne "${WHITE}"
-	printf "%-16s %-15s %-7s %-20s %-10s" ID IP VERSION LAST_PROBE USER
+	printf "%-16s %-15s %-7s %-20s %-10s" ID IP VERSION LAST_PROBE USER TYPE
 	echo -e "${NO_COLOR}"
 	IFS=$'\n' 
-	for dev in $(query "SELECT id,ip,bversion,EXTRACT(epoch from date_trunc('second', date_last_seen)),duser FROM devices ORDER BY id;"); do
-		IFS=$'|' read id ip ver ts duser<<< "$dev"
+	for dev in $(query "SELECT id,ip,bversion,EXTRACT(epoch from date_trunc('second', date_last_seen)),duser,network FROM devices ORDER BY id;"); do
+		IFS=$'|' read id ip ver ts duser network<<< "$dev"
 		off_time=$(( $(date +%s) - $ts ))
 		if [ $off_time -lt 300 ]; then
 			echo -ne $GREEN
@@ -605,7 +662,7 @@ function list()
 			[ "$1" == log -a $off_time -lt 900 ] && echo "$(date +"%Y-%m-%d %H:%M:%S") - Device $id went offline" >> /tmp/devices.log
 			echo -ne $RED
 		fi
-		printf "%-16s %-15s %-7s %-20s %-10s" $id $ip $ver $(date -d @$ts +"%Y-%m-%d %H:%M:%S") $duser
+		printf "%-16s %-15s %-7s %-20s %-10s %-10s" $id $ip $ver $(date -d @$ts +"%Y-%m-%d %H:%M:%S") $duser $network
 		echo -e $NO_COLOR
 	done
 	[ "$1" == "notify" ] && ( sendmail "@/tmp/devices.log" ; rm /tmp/devices.log )
@@ -677,13 +734,13 @@ function read_msg()
 			IFS=$'|' read rowid from to msg <<< "$row"
 			echo "Message from $from: $msg"
 			echo "------------------------"
-			awk '
-				BEGIN{ out = 0 }
-				/^END - '$msg'/{ exit }
-				(out == 1){ print }
-				/'$msg'/{ out=1 }
-			' ~/var/log/devices/$from.log
-			echo "------------------------"
+		#	awk '
+		#		BEGIN{ out = 0 }
+		#		/^END - '$msg'/{ exit }
+		#		(out == 1){ print }
+		#		/'$msg'/{ out=1 }
+		#	' ~/var/log/devices/$from.log
+		#	echo "------------------------"
 
 			query "DELETE FROM messages WHERE msgfrom='$1';"
 		done
@@ -731,12 +788,28 @@ function setuser()
 	echo done
 }
 
+## Internal commands ##
+
+# Set network
+# $1 = dev id
+# $2 = network: fiber, adsl
+function setnetwork()
+{
+        echo -n "Setting $1 network type to $2..."
+        if [ $(query "SELECT id FROM devices WHERE id='$1';") ]; then
+                query "UPDATE devices SET network='$2' WHERE id='$1';"
+        else
+                query "INSERT INTO devices (id, network) VALUES('$1','$2');"
+        fi
+        echo done
+}
+
 # Clear pending messages
 # $1 = id
 function clearmsg()
 {
 	if [ $1 ]; then
-		query "DELETE FROM messages WHERE id=$1;"
+		query "DELETE FROM messages WHERE id='$1';"
 	else
 		echo "Delete all pending messages (y/N)?"
 		read a
@@ -749,11 +822,11 @@ function clearmsg()
 function cleardev()
 {
 	if [ $1 ]; then
-		query "DELETE FROM devices WHERE id=\"$1\";"
+		query "DELETE FROM devices WHERE id='$1';"
 	else
 		echo "Delete all devices (yes/no)?"
 		read a
-		[ $a == "yes" ] && query "DELETE FROM devices;"
+		[ $a == "y" ] && query "DELETE FROM devices;"
 	fi
 }
 
