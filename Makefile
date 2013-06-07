@@ -60,11 +60,11 @@ define Package/paws/postinst
 	if [ -z "$${IPKG_INSTROOT}" ]; then
     		$${IPKG_INSTROOT}/usr/bin/paws-bootstrap
 	fi
-        iptables --flush
+      #  iptables --flush
 	cp /etc/functions.sh /lib/functions.sh
-        ln -s /etc/init.d/wshaper /etc/rc.d/S99wshaper
-        /etc/init.d/wshaper start 
-        /etc/init.d/wshaper enable 
+        #ln -s /etc/init.d/wshaper /etc/rc.d/S99wshaper
+        #/etc/init.d/wshaper start 
+        #/etc/init.d/wshaper enable 
 	/etc/init.d/firewall restart
 	/etc/init.d/paws enable
 	reboot
