@@ -7,17 +7,17 @@ pawsrepo=/home/paws/paws-server
 
 cd $sdk
 
-oldversion=0.25
-version=0.26
+oldversion=0.33
+version=0.34
 
 sed -i s/PKG_VERSION:=$oldversion/PKG_VERSION:=$version/g $pawsrepo/Makefile
 cp $pawsrepo/Makefile package/paws/Makefile
-make V=99
-echo "PAWS ipk $version has been successfully generated"
+echo "Attempting to generate PAWS ipk $version"
+sudo make V=99
 
 cp bin/ar71xx/packages/paws_$version-1_ar71xx.ipk  $pawsrepo/paws-ipk
 sudo cp bin/ar71xx/packages/paws_$version-1_ar71xx.ipk  /var/www/html/paws-ipk
-echo "The new ipk is avaliable at http://server01.horizon.emnet.co.uk/paws-ipk/paws_$version-1_ar71xx.ipk"
+echo "If successful, new ipk is avaliable at http://server01.horizon.emnet.co.uk/paws-ipk/paws_$version-1_ar71xx.ipk"
 
 cd $pawsrepo
 git add paws-ipk/paws_$version-1_ar71xx.ipk
@@ -25,7 +25,7 @@ git add Makefile
 git commit -m "adding latest.ipk version $version"
 git pull
 git push
-echo "paws-server Github repo has been updated to reflect this change"
+echo "updating paws-server Github repo has been updated to reflect this change"
 
 echo "-------------------------------------------"
 echo "The PAWS ipk version: $version is now avalaible from:"
