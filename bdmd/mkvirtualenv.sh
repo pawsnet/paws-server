@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# script to install the virtual env
 VENV_DIR="$BDMDPY_ROOT/virt-python"
 PIP_CMD="pip" # $(which pip)
 VENV_CMD=$(which virtualenv2 || which virtualenv)
