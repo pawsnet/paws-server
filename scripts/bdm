@@ -73,7 +73,8 @@ function help()
 	    cleardev  [id]                  Delete device from list
 
 	    expand    <dev_id>              Expand the shortened device ID into its full device ID.
-
+		
+	    logrouters			    Display current status of logged in/off routers
 	Options:
 	
 	    -o <ssh_opts>    Additional SSH options
@@ -158,6 +159,10 @@ function parse()
 	;;
 	list)	
 		list $2
+	;;
+
+ 	logrouters)
+		logrouters $2
 	;;
 	mslist)	
 		mslist
@@ -452,8 +457,8 @@ function sendmail ()
 
 	# Send email to admins
 	/usr/sbin/sendmail -t <<-end
-		From: "PAWS Device Manager" <do-not-reply@paws.net>
-		To: "Arjuna Sathiaseelan" <arjuna.sathiaseelan@cl.cam.ac.uk>
+		From: "PAWS Device Manager" <paws@server01.horizon.emnet.co.uk>
+		To:publicaccesswifiservice@gmail.com
 		Subject: PAWS Notification System ($id)
 		Date: $(date -R)
 		Content-type: text/plain
@@ -642,10 +647,27 @@ function config()
 	fi
 }
 
+
+function logrouters()
+{
+IFS=$'\n'
+        for dev in $(query "SELECT id,ip,bversion,EXTRACT(epoch from date_trunc('second', date_last_seen)),duser,network FROM devices ORDER BY id;"); do
+                IFS=$'|' read id ip ver ts duser network<<< "$dev"
+                off_time=$(( $(date +%s) - $ts ))
+		[ $off_time -gt 600 ] && echo "$(date +"%Y-%m-%d %H:%M:%S") - Device $id went offline at $(date -d @$ts +"%Y-%m-%d %H:%M:%S")" >> /tmp/devices.log
+
+
+          done
+        [ "$1" == "notify" ] && ( sendmail "@/tmp/devices.log" ; rm /tmp/devices.log )
+
+
+}
+
 # List active devices and tunnels
 # $1 = update flag
 function list()
 {
+        
 	# Dump devices table
 	echo -e "${BLUE}\nDevices:${NO_COLOR}"
 	echo -ne "${WHITE}"
@@ -660,10 +682,12 @@ function list()
 		elif [ $off_time -lt 600 ]; then
 			echo -ne $YELLOW
 		else
-			[ "$1" == log -a $off_time -lt 900 ] && echo "$(date +"%Y-%m-%d %H:%M:%S") - Device $id went offline" >> /tmp/devices.log
+			[ "$1" == log -a  $off_time -gt 600 ] && echo "$(date +"%Y-%m-%d %H:%M:%S") - Device $id went offline at $(date -d @$ts +"%Y-%m-%d %H:%M:%S")" >> /tmp/devices.log
 			echo -ne $RED
 		fi
+
 		printf "%-16s %-15s %-7s %-20s %-10s %-10s" $id $ip $ver $(date -d @$ts +"%Y-%m-%d %H:%M:%S") $duser $network
+
 		echo -e $NO_COLOR
 	done
 	[ "$1" == "notify" ] && ( sendmail "@/tmp/devices.log" ; rm /tmp/devices.log )
