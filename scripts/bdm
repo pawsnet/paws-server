@@ -647,7 +647,7 @@ function config()
 	fi
 }
 
-
+#Log routers
 function logrouters()
 {
 IFS=$'\n'
