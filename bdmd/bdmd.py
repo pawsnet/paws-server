@@ -482,8 +482,9 @@ class ProbeHandler(DatagramProtocol):
             SENDMAIL = "/usr/sbin/sendmail" # sendmail location
   	    import os
             p = os.popen("%s -t" % SENDMAIL, "w")
-            p.write("To: arjuna.sathiaseelan@cl.cam.ac.uk\n")
-            p.write("Subject: Device %s Successfully Registered\n" % [probe.id])
+            #Send mail
+            p.write("To: arjuna.sathiaseelan@cl.cam.ac.uk,publicaccesswifiservice@gmail.com\n")
+            p.write("Subject: Device %s Successfully Registered\n" % probe.id)
             #p.write("\n") # blank line separating headers from body
             #p.write("The following device %s has successfully registered.\n",probe.id)
             sts = p.close()
