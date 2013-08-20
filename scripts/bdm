@@ -656,7 +656,7 @@ IFS=$'\n'
                 off_time=$(( $(date +%s) - $ts ))
 		[ $off_time -gt 600 ] && echo "$(date +"%Y-%m-%d %H:%M:%S") - Device $id went offline at $(date -d @$ts +"%Y-%m-%d %H:%M:%S")" >> /tmp/devices.log
 
-
+#done
           done
         [ "$1" == "notify" ] && ( sendmail "@/tmp/devices.log" ; rm /tmp/devices.log )
 
