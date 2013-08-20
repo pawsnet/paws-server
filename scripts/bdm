@@ -647,7 +647,7 @@ function config()
 	fi
 }
 
-#Log routers
+#Log routers and send mails about logged off routers
 function logrouters()
 {
 IFS=$'\n'
