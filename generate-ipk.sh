@@ -1,19 +1,20 @@
 #!/bin/bash
 # Generate lastest ipk and upload to Github
 
-sdk=/home/paws/OpenWRT-SDK
+sdk=/home/paws/openwrt/OpenWrt-SDK-ar71xx-for-Linux-i686-gcc-4.3.3+cs_uClibc-0.9.30.1 # /home/paws/OpenWRT-SDK
 pawsrepo=/home/paws/paws-server
-
 
 cd $sdk
 
-oldversion=0.33
-version=0.34
+oldversion=0.34
+version=0.35
 
 sed -i s/PKG_VERSION:=$oldversion/PKG_VERSION:=$version/g $pawsrepo/Makefile
+mkdir -p package/paws
 cp $pawsrepo/Makefile package/paws/Makefile
 echo "Attempting to generate PAWS ipk $version"
-sudo make V=99
+sudo yum install -y ncurses-devel svn
+make V=99
 
 cp bin/ar71xx/packages/paws_$version-1_ar71xx.ipk  $pawsrepo/paws-ipk
 sudo cp bin/ar71xx/packages/paws_$version-1_ar71xx.ipk  /var/www/html/paws-ipk
