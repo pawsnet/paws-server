@@ -178,7 +178,7 @@ class Probe(object):
         except IndexError:
             self.payload = None
         self.ip = host
-        self.arrival_time = datetime.datetime.utcnow()+ + datetime.timedelta(hours=1) 
+        self.arrival_time = datetime.datetime.utcnow()+ + datetime.timedelta(hours=1)
         self.blacklisted = False
         self.reply = None
 
@@ -473,14 +473,14 @@ class ProbeHandler(DatagramProtocol):
 
     #@print_entry
     def register_device_qh(self, resultset, probe):
-	if resultset:
+        if resultset:
             query = ("UPDATE devices SET ip=%s, date_last_seen=%s, bversion=%s "
                     "WHERE id=%s;")
         else:
             query = ("INSERT INTO devices (ip, date_last_seen, bversion, id) "
                     "VALUES (%s, %s, %s, %s);")
             SENDMAIL = "/usr/sbin/sendmail" # sendmail location
-  	    import os
+            import os
             p = os.popen("%s -t" % SENDMAIL, "w")
             #Send mail
             p.write("To: arjuna.sathiaseelan@cl.cam.ac.uk,publicaccesswifiservice@gmail.com\n")
@@ -488,9 +488,9 @@ class ProbeHandler(DatagramProtocol):
             #p.write("\n") # blank line separating headers from body
             #p.write("The following device %s has successfully registered.\n",probe.id)
             sts = p.close()
-  	    #if sts != 0:
-      		#print "Sendmail exit status", sts
-	d = self.dbpool.runOperation(
+            #if sts != 0:
+                #print "Sendmail exit status", sts
+        d = self.dbpool.runOperation(
                 query, [probe.ip, probe.arrival_time, probe.param, probe.id])
         return d.addCallback(lambda _: probe)
 
