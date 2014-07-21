@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=paws
-PKG_VERSION:=0.40
+PKG_VERSION:=0.41
 PKG_RELEASE:=1
 
 
