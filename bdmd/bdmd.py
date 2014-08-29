@@ -483,7 +483,7 @@ class ProbeHandler(DatagramProtocol):
             import os
             p = os.popen("%s -t" % SENDMAIL, "w")
             #Send mail
-            p.write("To: arjuna.sathiaseelan@cl.cam.ac.uk,publicaccesswifiservice@gmail.com\n")
+            p.write("To: horizon-paws-ops@cs.nott.ac.uk\n")
             p.write("Subject: Device %s Successfully Registered\n" % probe.id)
             #p.write("\n") # blank line separating headers from body
             #p.write("The following device %s has successfully registered.\n",probe.id)
