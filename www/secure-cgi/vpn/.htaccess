@@ -1,9 +1,0 @@
-AuthType Basic
-AuthName "PAWS Secure Area"
-AuthBasicAuthoritative Off
-AuthBasicProvider radius
-AuthRadiusAuthoritative on
-AuthRadiusActive On
-Require valid-user
-
-
